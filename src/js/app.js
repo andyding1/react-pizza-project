@@ -18,10 +18,13 @@ var Navigation = React.createClass({
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/about">About Us</Link>
+            <Link to="/order">Order</Link>
           </li>
           <li>
-            <Link to="/team">Meet the team</Link>
+            <Link to="/choose">Choose Pizza</Link>
+          </li>
+          <li>
+            <Link to="/custom">Custom Pizza</Link>
           </li>
         </ul>
       </nav>
@@ -54,25 +57,44 @@ var Home = React.createClass({
   }
 });
 
-// about "page"
-var About = React.createClass({
+// order "page"
+var Order = React.createClass({
   render: function() {
     return (
       <div>
-        <h1>About Page!</h1>
-        <p>Welcome to the about page!</p>
+        <h1>Order Page!</h1>
+        <p>Please enter your information</p>
+        <form>
+          <label>Name: <input name="name" type="text"></input></label><br/>
+          <label>Email: <input name="email" type="text"></input></label><br/>
+          <label>Phone Number: <input name="phoneNumber" type="text"></input></label><br/>
+          <label>Home Address: <input name="homeAddress" type="text"></input></label><br/>
+          <input type="submit" value="Submit"></input>
+        </form>
       </div>
     );
   }
 });
 
-// team "page"
-var Team = React.createClass({
+// choose "page"
+var Choose = React.createClass({
   render: function() {
     return (
       <div>
-        <h1>Meet the team!</h1>
-        <p>Welcome to the team page!</p>
+        <h1>Choose Your Pizza!</h1>
+        <p>List of toppings,cheeses</p>
+      </div>
+    );
+  }
+});
+
+// custom "page"
+var Custom = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <h1>Create Your Pizza!</h1>
+        <p>List of toppings,cheeses</p>
       </div>
     );
   }
@@ -104,8 +126,9 @@ var routes = (
   <Router history={browserHistory}>
     <Route path="/" component={App}>
       <IndexRoute component={Home}/>
-      <Route path="about" component={About}/>
-      <Route path="team" component={Team}/>
+      <Route path="order" component={Order}/>
+      <Route path="choose" component={Choose}/>
+      <Route path="custom" component={Custom}/>
       <Route path="*" component={NotFound}/>
     </Route>
   </Router>
