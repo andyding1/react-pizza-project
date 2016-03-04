@@ -8,37 +8,104 @@ var Link = ReactRouter.Link;
 var IndexRoute = ReactRouter.IndexRoute;
 var browserHistory = ReactRouter.browserHistory;
 
-// A simple navigation component
-var Navigation = React.createClass({
-  render: function() {
-    return (
-      <nav className="main-menu">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/order">Order</Link>
-          </li>
-          <li>
-            <Link to="/choose">Choose Pizza</Link>
-          </li>
-          <li>
-            <Link to="/custom">Custom Pizza</Link>
-          </li>
-        </ul>
-      </nav>
-    );
+/*
+  The Pizza
+*/
+var pizzas = [
+  {
+    name: 'Cheese Pizza',
+    cheese: 'mozzarella',
+    toppings: [],
+    price: 5
+  },
+  {
+    name: 'The Monster',
+    cheese: 'parmesan',
+    toppings: ['anchovies', 'lobster', 'truffle oil'],
+    price: 100
   }
-});
+];
+
+/*
+  Cheese
+*/
+var cheeses = [
+  {
+    name: 'mozzarella',
+    displayName: 'Mozzarella cheese',
+    price: 0
+  },
+  {
+    name: 'parmesan',
+    displayName: 'Parmigiano Reggiano',
+    price: 100
+  }
+];
+
+/*
+  Toppings
+*/
+var toppings = [
+  {
+    name: 'pepperoni',
+    displayName: 'Pepperoni',
+    price: 1
+  },
+  {
+    name: 'anchovies',
+    displayName: 'Anchovies',
+    price: 10
+  },
+  {
+    name: 'lobster',
+    displayName: 'Lobstah',
+    price: 25
+  },
+  {
+    name: 'truffle oil',
+    displayName: 'Mmmm... truffle oillll',
+    price: 100
+  }
+];
+
+var userInfo;
+
+// A simple navigation component
+// var Navigation = React.createClass({
+//   render: function() {
+//     return (
+//       <nav className="main-menu">
+//         <ul>
+//           <li>
+//             <Link to="/">Home</Link>
+//           </li>
+//           <li>
+//             <Link to="/order">Order</Link>
+//           </li>
+//           {/*}
+//           <li>
+//             <Link to="/choose">Choose Pizza</Link>
+//           </li>
+//           <li>
+//             <Link to="/custom">Custom Pizza</Link>
+//           </li>
+//           */}
+//         </ul>
+//       </nav>
+//     );
+//   }
+// });
 
 // The main application layout
 // this.props.children will be set by React Router depending on the current route
+
 var App = React.createClass({
   render: function() {
     return (
       <main>
-        <Navigation/>
+      {/*
+      <Navigation/>
+      */}
         {this.props.children}
       </main>
     );
@@ -50,8 +117,9 @@ var Home = React.createClass({
   render: function() {
     return (
       <div>
-        <h1>Homepage!</h1>
-        <p>Welcome to the homepage! Try to click on a link in the nav, then click the browser's back button.</p>
+        <h1>Welcome!</h1>
+        <p>Click below to order pizza.</p>
+        <Link to="/order">Order</Link>
       </div>
     );
   }
@@ -59,17 +127,28 @@ var Home = React.createClass({
 
 // order "page"
 var Order = React.createClass({
+  getUser: function(event){
+    event.preventDefault();
+    userInfo = {
+      name: this.refs.name.value,
+      email: this.refs.email.value,
+      phoneNumber: this.refs.phoneNumber.value,
+      homeAddress: this.refs.homeAddress.value
+    }
+    browserHistory.push('/choose');
+    console.log(userInfo);
+  },
   render: function() {
     return (
       <div>
         <h1>Order Page!</h1>
         <p>Please enter your information</p>
-        <form>
-          <label>Name: <input name="name" type="text"></input></label><br/>
-          <label>Email: <input name="email" type="text"></input></label><br/>
-          <label>Phone Number: <input name="phoneNumber" type="text"></input></label><br/>
-          <label>Home Address: <input name="homeAddress" type="text"></input></label><br/>
-          <input type="submit" value="Submit"></input>
+        <form onSubmit={this.getUser}>
+          <label>Name:          <input ref="name" name="name" type="text"></input></label><br/>
+          <label>Email:         <input ref="email" name="email" type="text"></input></label><br/>
+          <label>Phone Number:  <input ref="phoneNumber" name="phoneNumber" type="text"></input></label><br/>
+          <label>Home Address:  <input ref="homeAddress" name="homeAddress" type="text"></input></label><br/>
+          <input type="submit" defaultValue="Submit"></input>
         </form>
       </div>
     );
@@ -78,11 +157,43 @@ var Order = React.createClass({
 
 // choose "page"
 var Choose = React.createClass({
+  getInitialState: function(){
+    return {
+      pizza: pizzas,
+      selected: false,
+    };
+  },
+  handleClick: function(clickedPizza){
+      var newList = this.state.pizza.map(function(pizza){
+        if (clickedPizza === pizza.name){
+          pizza.selected = !pizza.selected;
+        }
+
+        return pizza;
+      });
+      this.setState({
+        pizza: newList
+      })
+  },
   render: function() {
     return (
       <div>
         <h1>Choose Your Pizza!</h1>
-        <p>List of toppings,cheeses</p>
+        <ul>
+        {this.state.pizza.map((pizza) =>{
+          var color = "";
+          if(pizza.selected){
+            color = "selected"
+          }
+
+          return (
+            <li key={pizza.name} onClick={this.handleClick.bind(null, pizza.name)} className={color}>
+              <p>{pizza.name}</p>
+              <p>{pizza.price}</p>
+            </li>
+          );
+        })}
+        </ul>
       </div>
     );
   }
@@ -94,7 +205,6 @@ var Custom = React.createClass({
     return (
       <div>
         <h1>Create Your Pizza!</h1>
-        <p>List of toppings,cheeses</p>
       </div>
     );
   }
