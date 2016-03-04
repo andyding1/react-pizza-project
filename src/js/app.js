@@ -68,6 +68,7 @@ var toppings = [
   }
 ];
 
+//Declaring global variable to store user info
 var userInfo;
 
 // A simple navigation component
@@ -160,9 +161,40 @@ var Choose = React.createClass({
   getInitialState: function(){
     return {
       pizza: pizzas,
-      selected: false,
+      selected: false
     };
   },
+  priceRender: function(price){
+    var priceFormat = "$"+price+".00";
+    return priceFormat;
+  },
+  goCustomize: function(event){
+    event.preventDefault();
+    browserHistory.push('/custom');
+  },
+  choosePizza: function(pizza,price){
+    browserHistory.push('/done?pizza='+pizza+'&price='+price);
+  },
+  render: function(){
+    return (
+      <div>
+        <h1>Choose your Pizza!</h1>
+        <ul>
+          {this.state.pizza.map((pizza)=>{
+            return (
+              <li key={pizza.name} onClick={this.choosePizza.bind(this, pizza.name, this.priceRender(pizza.price))}>
+                <p>{pizza.name}</p>
+                <p>{this.priceRender(pizza.price)}</p>
+              </li>
+            );
+          })
+          }
+        </ul>
+        <button onClick={this.goCustomize}>Customize Your Pizza</button>
+      </div>
+    );
+  }
+/* //This allows me to click each <li> item created for each pizza and everytime I click I can apply css to .selected className
   handleClick: function(clickedPizza){
       var newList = this.state.pizza.map(function(pizza){
         if (clickedPizza === pizza.name){
@@ -182,12 +214,11 @@ var Choose = React.createClass({
         <ul>
         {this.state.pizza.map((pizza) =>{
           var color = "";
-          if(pizza.selected){
+          if(pizza.selected === true){
             color = "selected"
           }
-
           return (
-            <li key={pizza.name} onClick={this.handleClick.bind(null, pizza.name)} className={color}>
+            <li key={pizza.name} onClick={this.handleClick.bind(this, pizza.name)} className={color}>
               <p>{pizza.name}</p>
               <p>{pizza.price}</p>
             </li>
@@ -197,14 +228,83 @@ var Choose = React.createClass({
       </div>
     );
   }
+  */
 });
 
 // custom "page"
 var Custom = React.createClass({
+  getInitialState: function(){
+    return {
+      cheese: cheeses,
+      topping: toppings
+    };
+  },
+  priceRender: function(price){
+    var priceFormat = "$"+price+".00";
+    return priceFormat;
+  },
+  customizePizza: function(event){
+    event.preventDefault();
+    var finalPrice = 10;
+    var pizzaStuff = this.state.cheese.concat(this.state.topping);
+    var newList = pizzaStuff.forEach((pizzaIngredients)=>{
+      //console.log(this.refs);
+      if(this.refs[pizzaIngredients.name].checked){
+        finalPrice += pizzaIngredients.price;
+      }
+      //console.log(this.refs[pizzaIngredients.name]);
+    })
+    console.log(finalPrice);
+  },
   render: function() {
     return (
       <div>
         <h1>Create Your Pizza!</h1>
+        <form onSubmit={this.customizePizza}>
+          <ul>
+          <h3>Cheese:</h3>
+          {
+            this.state.cheese.map((cheese)=>{
+              return (
+                <li key={cheese.name}>
+                  <input type="radio" name="cheese" ref={cheese.name} />
+                  <label name="cheese">{cheese.name}: {this.priceRender(cheese.price)}</label>
+                </li>
+              );
+            })
+          }
+          <h3>Toppings:</h3>
+          {
+            this.state.topping.map((topping)=>{
+              return (
+                <li key={topping.name}>
+                  <input type="checkbox" name="topping" ref={topping.name}/>
+                  <label name="topping">{topping.name}: {this.priceRender(topping.price)}</label>
+                </li>
+              )
+            })
+          }
+          <input type="Submit"/>
+          </ul>
+        </form>
+      </div>
+    );
+  }
+});
+
+var Done = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <h1>You are done!</h1>
+        <h5>{userInfo.name}</h5>
+        <h5>{userInfo.email}</h5>
+        <h5>{userInfo.phoneNumber}</h5>
+        <h5>{userInfo.homeAddress}</h5>
+        <h3>You ordered: <br/>
+          <p>Pizza: {this.props.location.query.pizza}</p>
+          <p>Price: {this.props.location.query.price}</p>
+        </h3>
       </div>
     );
   }
@@ -239,6 +339,7 @@ var routes = (
       <Route path="order" component={Order}/>
       <Route path="choose" component={Choose}/>
       <Route path="custom" component={Custom}/>
+      <Route path="done" component={Done}/>
       <Route path="*" component={NotFound}/>
     </Route>
   </Router>
